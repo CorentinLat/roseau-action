@@ -1,0 +1,37 @@
+name: "Roseau Action"
+description: "Custom action to execute a Roseau analysis between the last two commits."
+author: "Corentin Latappy <corentin.lat@gmail.com>"
+branding:
+  icon: code
+  color: white
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Java
+      uses: actions/setup-java@v5
+      with:
+        distribution: corretto
+        java-version: 21
+
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Prepare both versions
+      shell: bash
+      run: |
+        mkdir versions
+        git worktree add versions/previous ${{ github.event.before }}
+        git worktree add versions/current ${{ github.sha }}
+
+    - name: Run JAR
+      shell: bash
+      run: java -jar $GITHUB_ACTION_PATH/roseau.jar --diff --v1=versions/previous --v2=versions/current --format=HTML --report=report.html
+
+    - name: Upload Roseau report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Roseau HTML Report
+        path: report.html

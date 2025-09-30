@@ -1,0 +1,12 @@
+# Roseau Action
+
+This GitHub Action runs a Roseau analysis between the last two commits.
+
+## Usage
+
+```yaml
+jobs:
+  run-roseau:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: CorentinLat/roseau-action@v1
