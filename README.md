@@ -10,3 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: CorentinLat/roseau-action@v1
+        with:
+          report-artifact (optional): "csv" | "html" | "none" (default)

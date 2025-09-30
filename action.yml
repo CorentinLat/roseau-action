@@ -5,6 +5,12 @@ branding:
   icon: code
   color: white
 
+inputs:
+  report-artifact:
+    description: "Whether to upload the Roseau report and which format"
+    required: false
+    default: "none"
+
 runs:
   using: "composite"
   steps:
@@ -26,12 +32,24 @@ runs:
         git worktree add versions/previous ${{ github.event.before }}
         git worktree add versions/current ${{ github.sha }}
 
-    - name: Run JAR
+    - name: Run Roseau
       shell: bash
-      run: java -jar $GITHUB_ACTION_PATH/roseau.jar --diff --v1=versions/previous --v2=versions/current --format=HTML --report=report.html
+      run: java -jar $GITHUB_ACTION_PATH/roseau.jar --diff --v1=versions/previous --v2=versions/current --github-action
 
-    - name: Upload Roseau report
+    - name: Upload Roseau CSV Report
+      if: ${{ inputs.report-artifact == 'csv' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Roseau CSV Report
+        path: report.csv
+
+    - name: Upload Roseau HTML Report
+      if: ${{ inputs.report-artifact == 'html' }}
       uses: actions/upload-artifact@v4
       with:
         name: Roseau HTML Report
         path: report.html
+
+    - name: Add summary
+      shell: bash
+      run: cat report.md >> $GITHUB_STEP_SUMMARY
